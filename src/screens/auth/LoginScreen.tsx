@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useMutation } from '../../graphql/hooks';
 import { LOGIN } from '../../graphql/queries';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Radius, Spacing, Typography } from '../../theme';
+import { Colors, Radius, Shadow, Spacing, Typography } from '../../theme';
 
 export function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const { signIn } = useAuth();
   const [login, { loading }] = useMutation(LOGIN);
 
@@ -25,9 +26,11 @@ export function LoginScreen({ navigation }: any) {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <View style={styles.logoBox}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+        <View style={styles.hero}>
+          <View style={styles.logoRow}>
             <Text style={styles.logoText}>mini</Text>
             <View style={styles.logoBadge}><Text style={styles.logoBadgeText}>MULE</Text></View>
           </View>
@@ -36,25 +39,59 @@ export function LoginScreen({ navigation }: any) {
 
         <View style={styles.card}>
           <Text style={styles.title}>Welcome back</Text>
-          <Text style={styles.subtitle}>Sign in to your account</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
 
-          {!!error && <View style={styles.errorBox}><Text style={styles.errorText}>{error}</Text></View>}
+          {!!error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>⚠ {error}</Text>
+            </View>
+          )}
 
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} placeholder="you@example.com" placeholderTextColor={Colors.gray400} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.input, focusedField === 'email' && styles.inputFocused]}
+              placeholder="you@example.com"
+              placeholderTextColor={Colors.gray300}
+              value={email}
+              onChangeText={setEmail}
+              onFocus={() => setFocusedField('email')}
+              onBlur={() => setFocusedField(null)}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
 
-          <Text style={styles.label}>Password</Text>
-          <TextInput style={[styles.input, styles.inputLast]} placeholder="••••••••" placeholderTextColor={Colors.gray400} value={password} onChangeText={setPassword} secureTextEntry />
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={[styles.input, focusedField === 'password' && styles.inputFocused]}
+              placeholder="••••••••"
+              placeholderTextColor={Colors.gray300}
+              value={password}
+              onChangeText={setPassword}
+              onFocus={() => setFocusedField('password')}
+              onBlur={() => setFocusedField(null)}
+              secureTextEntry
+            />
+          </View>
 
-          <TouchableOpacity style={[styles.btn, loading && styles.btnOff]} onPress={handle} disabled={loading} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={[styles.btn, loading && styles.btnOff]}
+            onPress={handle}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
             <Text style={styles.btnText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
-            <View style={styles.line} /><Text style={styles.orText}>or</Text><View style={styles.line} />
+            <View style={styles.line} />
+            <Text style={styles.orText}>or</Text>
+            <View style={styles.line} />
           </View>
 
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Register')}>
+          <TouchableOpacity style={styles.registerRow} onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
             <Text style={styles.muted}>Don't have an account? </Text>
             <Text style={styles.link}>Create one</Text>
           </TouchableOpacity>
@@ -67,30 +104,44 @@ export function LoginScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.gray50 },
+  container: { flex: 1, backgroundColor: Colors.dark },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: Spacing.xl },
-  header: { alignItems: 'center', marginBottom: 36 },
-  logoBox: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 },
-  logoText: { fontSize: 36, fontWeight: '900', color: Colors.gray900, letterSpacing: -1 },
-  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5 },
-  logoBadgeText: { fontSize: 20, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
-  tagline: { fontSize: Typography.sm, color: Colors.gray500, letterSpacing: 0.5 },
-  card: { backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Spacing.xxl, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
-  title: { fontSize: 22, fontWeight: '700', color: Colors.gray900, marginBottom: 4 },
+
+  hero: { alignItems: 'center', marginBottom: 40 },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  logoText: { fontSize: 42, fontWeight: '900', color: Colors.white, letterSpacing: -1.5 },
+  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 7, ...Shadow.primary },
+  logoBadgeText: { fontSize: 22, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
+  tagline: { fontSize: Typography.sm, color: Colors.gray400, letterSpacing: 1.5, textTransform: 'uppercase' },
+
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.xxl,
+    padding: Spacing.xxl,
+    ...Shadow.lg,
+  },
+  title: { fontSize: 24, fontWeight: '800', color: Colors.gray900, marginBottom: 4, letterSpacing: -0.5 },
   subtitle: { fontSize: Typography.sm, color: Colors.gray500, marginBottom: Spacing.xl },
-  errorBox: { backgroundColor: Colors.errorBg, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg },
-  errorText: { color: Colors.error, fontSize: Typography.sm },
-  label: { fontSize: Typography.sm, fontWeight: '600', color: Colors.gray700, marginBottom: 6, marginTop: Spacing.lg },
-  input: { borderWidth: 1.5, borderColor: Colors.gray200, borderRadius: Radius.md, paddingHorizontal: Spacing.lg, paddingVertical: 13, fontSize: Typography.base, color: Colors.gray900 },
-  inputLast: { marginBottom: Spacing.xl },
-  btn: { backgroundColor: Colors.primary, borderRadius: Radius.md, paddingVertical: 15, alignItems: 'center' },
-  btnOff: { opacity: 0.6 },
-  btnText: { color: Colors.white, fontSize: Typography.base, fontWeight: '700' },
+
+  errorBox: { backgroundColor: Colors.errorBg, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg, borderLeftWidth: 3, borderLeftColor: Colors.error },
+  errorText: { color: Colors.error, fontSize: Typography.sm, fontWeight: '500' },
+
+  fieldGroup: { marginBottom: Spacing.md },
+  label: { fontSize: Typography.xs, fontWeight: '700', color: Colors.gray500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 },
+  input: { borderWidth: 1.5, borderColor: Colors.gray200, borderRadius: Radius.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, fontSize: Typography.base, color: Colors.gray900, backgroundColor: Colors.gray50 },
+  inputFocused: { borderColor: Colors.primary, backgroundColor: Colors.white },
+
+  btn: { backgroundColor: Colors.primary, borderRadius: Radius.lg, paddingVertical: 16, alignItems: 'center', marginTop: Spacing.sm, ...Shadow.primary },
+  btnOff: { opacity: 0.6, shadowOpacity: 0 },
+  btnText: { color: Colors.white, fontSize: Typography.base, fontWeight: '800', letterSpacing: 0.5 },
+
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: Spacing.xl },
-  line: { flex: 1, height: 1, backgroundColor: Colors.gray200 },
-  orText: { marginHorizontal: 12, color: Colors.gray400, fontSize: Typography.sm },
-  row: { flexDirection: 'row', justifyContent: 'center' },
+  line: { flex: 1, height: 1, backgroundColor: Colors.gray100 },
+  orText: { marginHorizontal: 14, color: Colors.gray300, fontSize: Typography.xs, fontWeight: '600', letterSpacing: 0.5 },
+
+  registerRow: { flexDirection: 'row', justifyContent: 'center' },
   muted: { fontSize: Typography.sm, color: Colors.gray500 },
-  link: { fontSize: Typography.sm, color: Colors.primary, fontWeight: '600' },
-  hint: { textAlign: 'center', marginTop: Spacing.xl, fontSize: 11, color: Colors.gray400 },
+  link: { fontSize: Typography.sm, color: Colors.primary, fontWeight: '700' },
+
+  hint: { textAlign: 'center', marginTop: Spacing.xl, fontSize: 11, color: Colors.gray600, letterSpacing: 0.3 },
 });

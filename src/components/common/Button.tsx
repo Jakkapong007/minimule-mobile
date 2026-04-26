@@ -7,7 +7,7 @@ import {
   TouchableOpacityProps,
   View,
 } from 'react-native';
-import { Colors, Radius, Typography } from '../../theme';
+import { Colors, Radius, Shadow, Typography } from '../../theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -35,12 +35,13 @@ export function Button({
   const sizeStyle = { sm: styles.size_sm, md: styles.size_md, lg: styles.size_lg }[size];
   const textVariantStyle = { primary: styles.text_primary, secondary: styles.text_secondary, ghost: styles.text_ghost, danger: styles.text_danger, outline: styles.text_outline }[variant];
   const textSizeStyle = { sm: styles.textSize_sm, md: styles.textSize_md, lg: styles.textSize_lg }[size];
+  const shadowStyle = variant === 'primary' ? Shadow.primary : {};
 
   return (
     <TouchableOpacity
-      activeOpacity={0.75}
+      activeOpacity={0.8}
       disabled={isDisabled}
-      style={[styles.base, variantStyle, sizeStyle, fullWidth && styles.fullWidth, isDisabled && styles.disabled, style]}
+      style={[styles.base, variantStyle, sizeStyle, shadowStyle, fullWidth && styles.fullWidth, isDisabled && styles.disabled, style]}
       {...props}
     >
       {loading ? (
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
   inner: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   iconWrap: { marginRight: 2 },
   fullWidth: { width: '100%' },
-  disabled: { opacity: 0.45 },
+  disabled: { opacity: 0.4 },
 
   primary: { backgroundColor: Colors.primary },
   secondary: { backgroundColor: Colors.gray900 },
@@ -68,11 +69,11 @@ const styles = StyleSheet.create({
   danger: { backgroundColor: Colors.error },
   outline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: Colors.gray300 },
 
-  size_sm: { paddingVertical: 8, paddingHorizontal: 14 },
-  size_md: { paddingVertical: 13, paddingHorizontal: 20 },
-  size_lg: { paddingVertical: 16, paddingHorizontal: 28 },
+  size_sm: { paddingVertical: 9, paddingHorizontal: 16 },
+  size_md: { paddingVertical: 14, paddingHorizontal: 22 },
+  size_lg: { paddingVertical: 17, paddingHorizontal: 30 },
 
-  text: { fontWeight: Typography.bold, letterSpacing: 0.2 },
+  text: { fontWeight: Typography.bold, letterSpacing: 0.3 },
   text_primary: { color: Colors.white },
   text_secondary: { color: Colors.white },
   text_ghost: { color: Colors.primary },

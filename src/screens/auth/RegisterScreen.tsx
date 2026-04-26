@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useMutation } from '../../graphql/hooks';
 import { REGISTER, LOGIN } from '../../graphql/queries';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Radius, Spacing, Typography } from '../../theme';
+import { Colors, Radius, Shadow, Spacing, Typography } from '../../theme';
 
 export function RegisterScreen({ navigation }: any) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const { signIn } = useAuth();
   const [register, { loading: r }] = useMutation(REGISTER);
   const [login, { loading: l }] = useMutation(LOGIN);
@@ -28,33 +29,63 @@ export function RegisterScreen({ navigation }: any) {
     }
   }
 
+  const fields = [
+    { key: 'name',     label: 'Full Name', value: name,     set: setName,     placeholder: 'Your name',       kb: 'default' as const, secure: false },
+    { key: 'email',    label: 'Email',     value: email,    set: setEmail,    placeholder: 'you@example.com', kb: 'email-address' as const, secure: false },
+    { key: 'password', label: 'Password',  value: password, set: setPassword, placeholder: '8+ characters',   kb: 'default' as const, secure: true },
+  ];
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <View style={styles.logoBox}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+        <View style={styles.hero}>
+          <View style={styles.logoRow}>
             <Text style={styles.logoText}>mini</Text>
             <View style={styles.logoBadge}><Text style={styles.logoBadgeText}>MULE</Text></View>
           </View>
+          <Text style={styles.tagline}>Join the community</Text>
         </View>
+
         <View style={styles.card}>
           <Text style={styles.title}>Create account</Text>
-          <Text style={styles.subtitle}>Join the miniMule community</Text>
-          {!!error && <View style={styles.errorBox}><Text style={styles.errorText}>{error}</Text></View>}
-          {[
-            { label: 'Full Name', value: name, set: setName, placeholder: 'Your name', kb: 'default' as const },
-            { label: 'Email', value: email, set: setEmail, placeholder: 'you@example.com', kb: 'email-address' as const },
-            { label: 'Password', value: password, set: setPassword, placeholder: '8+ characters', kb: 'default' as const, secure: true },
-          ].map(f => (
-            <View key={f.label}>
+          <Text style={styles.subtitle}>Free forever. No credit card needed.</Text>
+
+          {!!error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>⚠ {error}</Text>
+            </View>
+          )}
+
+          {fields.map(f => (
+            <View key={f.key} style={styles.fieldGroup}>
               <Text style={styles.label}>{f.label}</Text>
-              <TextInput style={styles.input} placeholder={f.placeholder} placeholderTextColor={Colors.gray400} value={f.value} onChangeText={f.set} keyboardType={f.kb} autoCapitalize={f.kb === 'email-address' ? 'none' : 'words'} secureTextEntry={!!f.secure} />
+              <TextInput
+                style={[styles.input, focusedField === f.key && styles.inputFocused]}
+                placeholder={f.placeholder}
+                placeholderTextColor={Colors.gray300}
+                value={f.value}
+                onChangeText={f.set}
+                onFocus={() => setFocusedField(f.key)}
+                onBlur={() => setFocusedField(null)}
+                keyboardType={f.kb}
+                autoCapitalize={f.kb === 'email-address' ? 'none' : 'words'}
+                secureTextEntry={f.secure}
+              />
             </View>
           ))}
-          <TouchableOpacity style={[styles.btn, loading && styles.btnOff]} onPress={handle} disabled={loading} activeOpacity={0.8}>
+
+          <TouchableOpacity
+            style={[styles.btn, loading && styles.btnOff]}
+            onPress={handle}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
             <Text style={styles.btnText}>{loading ? 'Creating account…' : 'Create Account'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate('Login')}>
+
+          <TouchableOpacity style={styles.loginRow} onPress={() => navigation.navigate('Login')} activeOpacity={0.7}>
             <Text style={styles.muted}>Already have an account? </Text>
             <Text style={styles.link}>Sign in</Text>
           </TouchableOpacity>
@@ -65,24 +96,33 @@ export function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.gray50 },
+  container: { flex: 1, backgroundColor: Colors.dark },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: Spacing.xl },
-  header: { alignItems: 'center', marginBottom: Spacing.xxl },
-  logoBox: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  logoText: { fontSize: 36, fontWeight: '900', color: Colors.gray900, letterSpacing: -1 },
-  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5 },
-  logoBadgeText: { fontSize: 20, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
-  card: { backgroundColor: Colors.white, borderRadius: Radius.xl, padding: Spacing.xxl, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4 },
-  title: { fontSize: 22, fontWeight: '700', color: Colors.gray900, marginBottom: 4 },
+
+  hero: { alignItems: 'center', marginBottom: 40 },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  logoText: { fontSize: 42, fontWeight: '900', color: Colors.white, letterSpacing: -1.5 },
+  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 7, ...Shadow.primary },
+  logoBadgeText: { fontSize: 22, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
+  tagline: { fontSize: Typography.xs, color: Colors.gray400, letterSpacing: 1.5, textTransform: 'uppercase' },
+
+  card: { backgroundColor: Colors.white, borderRadius: Radius.xxl, padding: Spacing.xxl, ...Shadow.lg },
+  title: { fontSize: 24, fontWeight: '800', color: Colors.gray900, marginBottom: 4, letterSpacing: -0.5 },
   subtitle: { fontSize: Typography.sm, color: Colors.gray500, marginBottom: Spacing.xl },
-  errorBox: { backgroundColor: Colors.errorBg, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg },
-  errorText: { color: Colors.error, fontSize: Typography.sm },
-  label: { fontSize: Typography.sm, fontWeight: '600', color: Colors.gray700, marginBottom: 6, marginTop: Spacing.lg },
-  input: { borderWidth: 1.5, borderColor: Colors.gray200, borderRadius: Radius.md, paddingHorizontal: Spacing.lg, paddingVertical: 13, fontSize: Typography.base, color: Colors.gray900, marginBottom: 0 },
-  btn: { backgroundColor: Colors.primary, borderRadius: Radius.md, paddingVertical: 15, alignItems: 'center', marginTop: Spacing.xl, marginBottom: Spacing.xl },
-  btnOff: { opacity: 0.6 },
-  btnText: { color: Colors.white, fontSize: Typography.base, fontWeight: '700' },
-  row: { flexDirection: 'row', justifyContent: 'center' },
+
+  errorBox: { backgroundColor: Colors.errorBg, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg, borderLeftWidth: 3, borderLeftColor: Colors.error },
+  errorText: { color: Colors.error, fontSize: Typography.sm, fontWeight: '500' },
+
+  fieldGroup: { marginBottom: Spacing.md },
+  label: { fontSize: Typography.xs, fontWeight: '700', color: Colors.gray500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 },
+  input: { borderWidth: 1.5, borderColor: Colors.gray200, borderRadius: Radius.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, fontSize: Typography.base, color: Colors.gray900, backgroundColor: Colors.gray50 },
+  inputFocused: { borderColor: Colors.primary, backgroundColor: Colors.white },
+
+  btn: { backgroundColor: Colors.primary, borderRadius: Radius.lg, paddingVertical: 16, alignItems: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl, ...Shadow.primary },
+  btnOff: { opacity: 0.6, shadowOpacity: 0 },
+  btnText: { color: Colors.white, fontSize: Typography.base, fontWeight: '800', letterSpacing: 0.5 },
+
+  loginRow: { flexDirection: 'row', justifyContent: 'center' },
   muted: { fontSize: Typography.sm, color: Colors.gray500 },
-  link: { fontSize: Typography.sm, color: Colors.primary, fontWeight: '600' },
+  link: { fontSize: Typography.sm, color: Colors.primary, fontWeight: '700' },
 });

@@ -9,8 +9,7 @@ export const getToken = () => AsyncStorage.getItem(TOKEN_KEY);
 export const removeToken = () => AsyncStorage.removeItem(TOKEN_KEY);
 
 const httpLink = createHttpLink({
-  // Update this to your backend URL (local dev or deployed)
-  uri: 'http://localhost:8080/graphql',
+  uri: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080/graphql',
 });
 
 const authLink = setContext(async (_, { headers }) => {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '../../graphql/hooks';
 import { FEED, SHOWCASE } from '../../graphql/queries';
 import { Colors, Radius, Shadow, Spacing, Typography } from '../../theme';
@@ -39,7 +38,7 @@ export function FeedScreen({ navigation }: any) {
         </View>
         <View style={styles.tabRow}>
           {TABS.map(t => (
-            <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
+            <TouchableOpacity key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)} activeOpacity={0.8}>
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t}</Text>
             </TouchableOpacity>
           ))}
@@ -70,15 +69,24 @@ export function FeedScreen({ navigation }: any) {
   );
 }
 
-function PostCard({ post, nav }: { post: any; nav: any }) {
-  const h = 150 + (post.id.charCodeAt(0) % 3) * 60;
+function PostCard({ post, nav }: Readonly<{ post: any; nav: any }>) {
+  const h = 160 + ((post.id.codePointAt(0) ?? 0) % 3) * 60;
   return (
-    <TouchableOpacity style={[styles.card, { marginBottom: Spacing.sm }]} onPress={() => nav.navigate('PostDetail', { postId: post.id })} activeOpacity={0.9}>
-      <Image source={{ uri: post.imageUrl }} style={[styles.cardImg, { height: h }]} resizeMode="cover" />
-      <View style={styles.cardBody}>
+    <TouchableOpacity
+      style={[styles.card, { marginBottom: Spacing.sm }]}
+      onPress={() => nav.navigate('PostDetail', { postId: post.id })}
+      activeOpacity={0.92}
+    >
+      <View style={styles.imgWrap}>
+        <Image source={{ uri: post.imageUrl }} style={[styles.cardImg, { height: h }]} resizeMode="cover" />
+        <View style={styles.imgOverlay} />
         {post.isStickerDesign && (
-          <View style={styles.stickerBadge}><Text style={styles.stickerBadgeText}>🎯 Sticker</Text></View>
+          <View style={styles.stickerBadge}>
+            <Text style={styles.stickerBadgeText}>🎯 Sticker</Text>
+          </View>
         )}
+      </View>
+      <View style={styles.cardBody}>
         {post.caption ? <Text style={styles.caption} numberOfLines={2}>{post.caption}</Text> : null}
         <View style={styles.statsRow}>
           <Text style={styles.stat}>♥ {post.likeCount}</Text>
@@ -90,27 +98,43 @@ function PostCard({ post, nav }: { post: any; nav: any }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.white },
-  topBar: { backgroundColor: Colors.white, paddingHorizontal: Spacing.lg, paddingTop: 52, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: Colors.gray100 },
-  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 12 },
-  logoText: { fontSize: 22, fontWeight: '900', color: Colors.gray900, letterSpacing: -0.5 },
-  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  logoBadgeText: { fontSize: 13, fontWeight: '900', color: Colors.white, letterSpacing: 0.5 },
-  tabRow: { flexDirection: 'row', gap: 4 },
-  tab: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: Radius.full },
+  container: { flex: 1, backgroundColor: Colors.backgroundDark },
+  topBar: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: 56,
+    paddingBottom: 12,
+    borderBottomWidth: 0,
+    ...Shadow.xs,
+  },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 14 },
+  logoText: { fontSize: 24, fontWeight: '900', color: Colors.gray900, letterSpacing: -0.8 },
+  logoBadge: { backgroundColor: Colors.primary, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5, ...Shadow.primary },
+  logoBadgeText: { fontSize: 14, fontWeight: '900', color: Colors.white, letterSpacing: 0.5 },
+  tabRow: { flexDirection: 'row', gap: 6 },
+  tab: { paddingHorizontal: 18, paddingVertical: 8, borderRadius: Radius.full },
   tabActive: { backgroundColor: Colors.gray900 },
-  tabText: { fontSize: Typography.sm, fontWeight: '600', color: Colors.gray500 },
+  tabText: { fontSize: Typography.sm, fontWeight: '600', color: Colors.gray400, letterSpacing: 0.2 },
   tabTextActive: { color: Colors.white },
+
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  list: { padding: Spacing.lg },
+  list: { padding: Spacing.lg, paddingBottom: 100 },
   masonryRow: { flexDirection: 'row', gap: Spacing.sm },
   col: { flex: 1 },
-  card: { borderRadius: Radius.lg, overflow: 'hidden', backgroundColor: Colors.gray50, ...Shadow.sm },
+
+  card: { borderRadius: Radius.xl, overflow: 'hidden', backgroundColor: Colors.white, ...Shadow.sm },
+  imgWrap: { position: 'relative' },
   cardImg: { width: '100%' },
+  imgOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, backgroundColor: 'transparent' },
+  stickerBadge: {
+    position: 'absolute', top: 8, left: 8,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: Radius.full,
+    paddingHorizontal: 9, paddingVertical: 3,
+  },
+  stickerBadgeText: { fontSize: 10, fontWeight: '700', color: Colors.white },
   cardBody: { padding: 10 },
-  stickerBadge: { backgroundColor: Colors.primaryBg, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start', marginBottom: 4 },
-  stickerBadgeText: { fontSize: 10, fontWeight: '700', color: Colors.primary },
-  caption: { fontSize: 12, color: Colors.gray700, lineHeight: 16, marginBottom: 4 },
-  statsRow: { flexDirection: 'row', gap: 8 },
-  stat: { fontSize: 11, color: Colors.gray500 },
+  caption: { fontSize: 12, color: Colors.gray700, lineHeight: 17, marginBottom: 6 },
+  statsRow: { flexDirection: 'row', gap: 10 },
+  stat: { fontSize: 11, color: Colors.gray400, fontWeight: '600' },
 });
