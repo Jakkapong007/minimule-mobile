@@ -1,0 +1,116 @@
+export const Colors = {
+  primary: '#E31837',
+  primaryDark: '#B8122C',
+  primaryLight: '#FF4D6A',
+  primaryBg: '#FFF0F2',
+
+  black: '#0A0A0A',
+  dark: '#141414',
+  gray900: '#1C1C1E',
+  gray800: '#2C2C2E',
+  gray700: '#3A3A3C',
+  gray600: '#636366',
+  gray500: '#8E8E93',
+  gray400: '#AEAEB2',
+  gray300: '#C7C7CC',
+  gray200: '#E5E5EA',
+  gray100: '#F2F2F7',
+  gray50: '#F8F8FA',
+  white: '#FFFFFF',
+
+  background: '#FFFFFF',
+  backgroundDark: '#F2F2F7',
+  surface: '#FFFFFF',
+  surfaceRaised: '#FFFFFF',
+  border: '#E5E5EA',
+  borderLight: '#F2F2F7',
+  error: '#FF3B30',
+  errorBg: '#FFF1F0',
+  success: '#34C759',
+  successBg: '#F0FFF4',
+  warning: '#FF9500',
+  warningBg: '#FFF8F0',
+  info: '#007AFF',
+  infoBg: '#F0F8FF',
+  overlay: 'rgba(0,0,0,0.45)',
+  overlayLight: 'rgba(0,0,0,0.2)',
+};
+
+export const Typography = {
+  xs: 11,
+  sm: 13,
+  base: 15,
+  md: 16,
+  lg: 18,
+  xl: 22,
+  '2xl': 26,
+  '3xl': 32,
+  '4xl': 40,
+
+  regular: '400' as const,
+  medium: '500' as const,
+  semibold: '600' as const,
+  bold: '700' as const,
+  black: '900' as const,
+};
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  base: 16,
+  lg: 20,
+  xl: 24,
+  xxl: 32,
+  xxxl: 40,
+  '2xl': 32,
+  '3xl': 48,
+  '4xl': 64,
+};
+
+export const Radius = {
+  sm: 6,
+  md: 10,
+  lg: 14,
+  xl: 18,
+  xxl: 24,
+  full: 9999,
+};
+
+export const Shadow = {
+  xs: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  primary: {
+    shadowColor: '#E31837',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+};
