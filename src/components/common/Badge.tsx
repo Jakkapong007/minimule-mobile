@@ -9,7 +9,7 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-export function Badge({ label, color = Colors.white, bgColor = Colors.primary, size = 'sm' }: Props) {
+export function Badge({ label, color = Colors.white, bgColor = Colors.primary, size = 'sm' }: Readonly<Props>) {
   return (
     <View style={[styles.badge, { backgroundColor: bgColor }, size === 'md' && styles.md]}>
       <Text style={[styles.text, { color }, size === 'md' && styles.textMd]}>{label}</Text>

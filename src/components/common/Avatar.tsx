@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { Colors, Radius, Typography } from '../../theme';
+import { Colors, Typography } from '../../theme';
 
 interface AvatarProps {
   uri?: string | null;
@@ -8,7 +8,7 @@ interface AvatarProps {
   size?: number;
 }
 
-export function Avatar({ uri, name, size = 40 }: AvatarProps) {
+export function Avatar({ uri, name, size = 40 }: Readonly<AvatarProps>) {
   const initials = name
     ? name
         .split(' ')

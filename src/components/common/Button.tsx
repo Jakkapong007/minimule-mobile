@@ -28,7 +28,7 @@ export function Button({
   style,
   icon,
   ...props
-}: ButtonProps) {
+}: Readonly<ButtonProps>) {
   const isDisabled = disabled || loading;
 
   const variantStyle = { primary: styles.primary, secondary: styles.secondary, ghost: styles.ghost, danger: styles.danger, outline: styles.outline }[variant];

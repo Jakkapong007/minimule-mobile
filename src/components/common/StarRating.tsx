@@ -10,7 +10,7 @@ interface Props {
   onRate?: (rating: number) => void;
 }
 
-export function StarRating({ rating, maxRating = 5, size = 16, interactive = false, onRate }: Props) {
+export function StarRating({ rating, maxRating = 5, size = 16, interactive = false, onRate }: Readonly<Props>) {
   return (
     <View style={styles.row}>
       {Array.from({ length: maxRating }, (_, i) => {
